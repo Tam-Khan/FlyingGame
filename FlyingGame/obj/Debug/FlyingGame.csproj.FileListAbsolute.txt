@@ -1,0 +1,9 @@
+G:\VSprojects\FlyingGame\FlyingGame\bin\Debug\FlyingGame.exe.config
+G:\VSprojects\FlyingGame\FlyingGame\bin\Debug\FlyingGame.exe
+G:\VSprojects\FlyingGame\FlyingGame\bin\Debug\FlyingGame.pdb
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.MainConsole.resources
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.Properties.Resources.resources
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.csproj.GenerateResource.Cache
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.exe
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.pdb
+G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.csprojResolveAssemblyReference.cache
