@@ -11,6 +11,8 @@ namespace FlyingGame.Model.Shared
         public bool GroundObjectOff { get; set; }
         public bool SkyobjectOff { get; set; }
 
+        public byte MountainDelta { get; set; }
+
         public byte CloudGenerationRate { get; set; } 
 
         public byte MyJetDelta { get; set; }            
@@ -47,6 +49,8 @@ namespace FlyingGame.Model.Shared
 
             SkyobjectOff = false;
             GroundObjectOff = false;
+
+            MountainDelta = 5;
 
             CloudGenerationRate = 75;           //Next cloud may generate right after 75% generation of current cloud and so, creating overlap
             

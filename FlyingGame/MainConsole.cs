@@ -121,21 +121,14 @@ namespace FlyingGame
                 if (rand.Next(1, 10) == 5 && !_go.MountainDrawInitiated)
                 {
                     _go.MountainDrawInitiated = true;
-                    _go.CountToMountainHgt = rand.Next(20, 50);     //Get a random number to control mountain Height
-                    _go.CurrCountToMountainHgt = 0;
-                    _go.Ydelta = rand.Next(1, 5);                   //Get a random number which will be applied in Y to increase mountain height
-                    _go.Xdelta = 5;                                 //increase/decrease to speed up/down mountain slide speed
-
+                    _go.Height = rand.Next(20, 150);     //Get a random number to control mountain Height
+                    _go.Width = rand.Next(250,300);
+                    _go.DeltaX = _gc.MountainDelta;
+                    
                     //Start from far right
-                    _go.X1 = PbConsole.Width;
-                    _go.X2 = PbConsole.Width;
-                    _go.X3 = PbConsole.Width;
-
-                    //Start from ground level
-                    _go.Y1 = PbConsole.Height;
-                    _go.Y2 = PbConsole.Height;
-                    _go.Y3 = PbConsole.Height;
-
+                    _go.RefX = PbConsole.Width;
+                    _go.RefY = PbConsole.Height;
+                    
                     switch (rand.Next(1, 3))                                //select random colour from three choices as mountain colour
                     {
                         case 1:{_go.MountainColor = Brushes.Green;break;}
@@ -146,40 +139,9 @@ namespace FlyingGame
 
                 if (!_go.MountainDrawInitiated) goto MyJetRegion;           //no mountain to draw, bypass this region
 
-                //Process mountain points and draw
-                
-                _go.CurrCountToMountainHgt++;
-
-                if (_go.CurrCountToMountainHgt >= _go.CountToMountainHgt)
-                    _go.CurrCountToMountainHgt = _go.CountToMountainHgt;    //Do not allow current count to be greater than set count
-
-                _go.X1 = _go.X1 - _go.Xdelta;                               //Constant Shift on left of left most X1 (mountain start point) 
-
-                if (_go.CurrCountToMountainHgt < _go.CountToMountainHgt)
-                    _go.Y2 = _go.Y2 - _go.Ydelta;                           //Reduce Y till Y reaches to desired mountain height (mountain starting to go up)
-
-                _go.X2 = _go.CurrCountToMountainHgt == _go.CountToMountainHgt ? _go.X2 - _go.Xdelta : PbConsole.Width;  //if reached mountain height, shift X2 (mountain mid point) to left 
-                _go.Y3 = _go.CurrCountToMountainHgt == _go.CountToMountainHgt ? _go.Y3 + _go.Ydelta : _go.Y2;           //if reached mountain height, increase Y3 by delta, else same value as Y2 (mountain starting to go down)
-                _go.X3 = (_go.Y3 > PbConsole.Height ? _go.X3 - _go.Xdelta : PbConsole.Width);                           //X3 (mountain last point) shift to left when Y3 reached ground (mountain generation completed)
-
-                
-                if (_go.X3 < 0) //Whole mountain left the window, mark it for removal from list (during Cleanup)
-                {
-                    _go.MountainDrawInitiated = false;
-                }
-
-                if (_go.Y3 > PbConsole.Height)  //Stop the Y3 when reached the ground.
-                    _go.Y3 = PbConsole.Height;
-
-                //Create Polygon points to draw mountain
-                var mPoints = new Point[5];
-                mPoints[0] = new Point(_go.X1, _go.Y1);             //Start point, always at ground level
-                mPoints[1] = new Point(_go.X2-5, _go.Y2);           //To give the mountain a flat top
-                mPoints[2] = new Point(_go.X2 + 5, _go.Y2);         //To give the mountain a flat top
-                mPoints[3] = new Point(_go.X3, _go.Y3);             
-                mPoints[4] = new Point(_go.X3, PbConsole.Height);   //End of mountain - always at ground level
-
-                sky.FillPolygon(_go.MountainColor, mPoints);
+                sky.FillPolygon(_go.MountainColor, _go.MountainPoints());
+                _go.RefX = _go.RefX - _go.DeltaX;
+                if (_go.RefX + _go.Width < 0) _go.MountainDrawInitiated = false;
 
                 #endregion
 
