@@ -6,4 +6,3 @@ G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.Properties.Resources.re
 G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.csproj.GenerateResource.Cache
 G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.exe
 G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.pdb
-G:\VSprojects\FlyingGame\FlyingGame\obj\Debug\FlyingGame.csprojResolveAssemblyReference.cache

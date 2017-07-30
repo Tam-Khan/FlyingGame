@@ -99,17 +99,18 @@ namespace FlyingGame.Model.Shared
             PowerUpGenOdd = 1500;
             ExplosionVisibleTimeMax = 10;
             
-            BossHp = 100;                       //default, 300
-            BossAppearScore = 200;              //default, 500
-            BossAppearInterval = 500;           //default, 500
-            BossHpIncrement = 100;              //default, 200
+            //Change following 4 values to control level duration (quicker the boss appears and gets killed, quicker the level finishes)
+            BossHp = 200;                       
+            BossAppearScore = 500;              
+            BossAppearInterval = 500;           
+            BossHpIncrement = 100;              
             
             LevelCompleted = 0;
             BombExplosionVisibleTimeMax = 60;
             
-            GodMode = true;                    //true: No destroying my jet
-            EnableSound = false;
-            IsFullPowered = true;
+            GodMode = false;                    //true: No destroying my jet
+            EnableSound = true;
+            IsFullPowered = false;
         }
     }
 }
