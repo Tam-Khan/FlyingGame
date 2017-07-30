@@ -10,6 +10,7 @@ namespace FlyingGame.Model.EnemyJets
         public bool GunFireStart { get; set; }
         public bool IsBossGun { get; set; }
         public bool IsBigGun { get; set; }
+        public byte JetType { get; set; }
         
         public int InitialX { get; set; }
         public int InitialY { get; set; }

@@ -50,7 +50,9 @@ namespace FlyingGame
 
         //For boss
         private EnemyBoss _eb = new EnemyBoss();
-        
+
+        private byte _dayNight;
+
         public MainConsole()
         {
             InitializeComponent();
@@ -77,6 +79,14 @@ namespace FlyingGame
             _mjb = new MyJetBomb();
             _pu = new PowerUps();
             _eb = new EnemyBoss();
+
+            if (_gc.IsFullPowered)
+            {
+                _mj.Hp = 10;
+                _mjb.BombRemains = 5;
+                _mj.CurrentActiveGun = 3;
+                _mj.CurrentBulletLimit = 10;
+            }
 
             _myJetBulletColor = new Pen(Brushes.Blue);
             BackColor = Color.Empty;
@@ -113,7 +123,33 @@ namespace FlyingGame
             {
                 if (_mjb.BombXploded) goto BombExploded;                //no other action/drawing till the bomb explosion finished.
 
-                sky.Clear(Color.LightSkyBlue);                          //clear all drawings from previous round (routine)
+                #region DayNight
+
+                //whole canvas must be cleared before round starts
+
+                if ((_gc.LevelCompleted + 1) % 2 == 0)          //dusk
+                {
+                    sky.Clear(Color.LightPink);
+                    _dayNight = 1;
+                }
+
+                else if ((_gc.LevelCompleted + 1) % 3 == 0)     //night
+                {
+                    sky.Clear(Color.DarkBlue);
+                    _dayNight = 2;
+                }
+                else if ((_gc.LevelCompleted + 1) % 4 == 0)     //dawn
+                {
+                    sky.Clear(Color.LightCyan);
+                    _dayNight = 3;
+                }
+                else
+                {
+                    sky.Clear(Color.LightSkyBlue);              //normal day time
+                    _dayNight = 0;
+                }
+
+                #endregion
                 
                 #region Ground
 
@@ -141,7 +177,7 @@ namespace FlyingGame
 
                 sky.FillPolygon(_go.MountainColor, _go.MountainPoints());
                 _go.RefX = _go.RefX - _go.DeltaX;
-                if (_go.RefX + _go.Width < 0) _go.MountainDrawInitiated = false;
+                if (_go.RefX + _go.Width < 0) _go = new GroundObject();
 
                 #endregion
 
@@ -152,8 +188,8 @@ namespace FlyingGame
                 if (rand.Next(1, 150) == 50 && _cL.Count < 4 && (_cL.Select(x=>x).Where(x=>!x.IsGenerated).Count()==0))
                 {
                     _so = new SkyObjects();
-                    _so.Width = (byte) rand.Next(50, 200);                          //Get random width for cloud
-                    _so.Height = (byte) rand.Next(30, 100);                         //Get random height for cloud
+                    _so.Width = (byte) rand.Next(100, 200);                          //Get random width for cloud
+                    _so.Height = (byte) rand.Next(30, 90);                         //Get random height for cloud
                     _so.RefX = PbConsole.Width;                                     //Start from far right
                     _so.RefY = rand.Next(5, PbConsole.Height/2 - _so.Height);       //Start somewhere between top half screen
 
@@ -182,7 +218,7 @@ namespace FlyingGame
                     cloud.RefX = cloud.RefX - cloud.DeltaX;
 
                     if (cloud.RefX + cloud.Width < 0) cloud.CloudInitiated = false;                      //If the whole cloud left windown, mark it for removal
-                    if (cloud.RefX + (cloud.Width * _gc.CloudGenerationRate/100) <= PbConsole.Width) cloud.IsGenerated = true;   //If cloud shifted on left enough to be half drawn, mark it (to allow next cloud generation)
+                    if (cloud.RefX + (cloud.Width * _gc.CloudGenerationOdd/100) <= PbConsole.Width) cloud.IsGenerated = true;   //If cloud shifted on left enough to be half drawn, mark it (to allow next cloud generation)
 
                     if (cloud.CloudInitiated)                   
                     {
@@ -214,7 +250,7 @@ namespace FlyingGame
                     {
                         case 1:
                         {
-                            _mjg.Add(new MyJetGunBullet {GunFireStart = true, X = _mj.X2, Y = _mj.Y2 - 10, Size = 3});
+                            _mjg.Add(new MyJetGunBullet {GunFireStart = true, X = _mj.X2, Y = _mj.Y2 - 10, Size = _gc.MyJetBulletSize});
                             break;
                         }
                         case 2:
@@ -349,8 +385,15 @@ namespace FlyingGame
                     for (int i = 0; i < _mjg.Count; i++)
                     {
                         //Draw bullet
-                        sky.DrawEllipse(_myJetBulletColor, _mjg[i].X, _mjg[i].Y, _mjg[i].Size, _mjg[i].Size);
-                        
+                        if (_dayNight == 2)
+                        {
+                            sky.DrawEllipse(new Pen(Color.White), _mjg[i].X, _mjg[i].Y, _mjg[i].Size, _mjg[i].Size);
+                        }
+                        else
+                        {
+                            sky.DrawEllipse(_myJetBulletColor, _mjg[i].X, _mjg[i].Y, _mjg[i].Size, _mjg[i].Size);
+                        }
+
                         //Move bullet for next turn
                         _mjg[i].X = _mjg[i].X + 10;
                         _mjg[i].Y = _mjg[i].Y + _mjg[i].DeltaY;
@@ -369,9 +412,10 @@ namespace FlyingGame
                                  (_mjg[i].Y + _mjg[i].Size >= _ej[j].RefY && _mjg[i].Y + _mjg[i].Size <= _ej[j].Y2)))
                             {
                                 EnemyDestroyed(_mjg[i].X, _mjg[i].Y, false);                //Add an explosion in the list
-                                _ej[j].MakeRedundant = true;                                //Mark the jet for removal from list
                                 _mjg[i].GunFireStart = false;                               //Mark the bullet for removal from list
-
+                                _ej[j].Hp--;
+                                if(_ej[j].Hp <= 0)  _ej[j].MakeRedundant = true;            //Mark the jet for removal from list
+                                
                                 //play enemy destroy sound
                                 if (_gc.EnableSound)
                                 {
@@ -392,12 +436,16 @@ namespace FlyingGame
                                 _eb.CurrHp--;
                                 EnemyDestroyed(_mjg[i].X, _mjg[i].Y, true);                 //Add an exposion in the list
                                 _mjg[i].GunFireStart = false;                               //Mark the bullet for removal from list
-
                             }
                         }
                     }
                 }
-                
+
+                if (_gc.InLevelTransition)
+                {
+                    LevelCompleted();
+                    goto EndDuties;
+                }
                 #endregion
 
                 #region EnemyJet
@@ -405,12 +453,19 @@ namespace FlyingGame
                 //Initiate enemy                    
                 if (_ej.Count < _gc.MaxEnemyPerLvl)                 //Only when current enemy cound is less than set limit        
                 {
-                    if (rand.Next(1, _gc.EnemyJetGenOdd) == 12)    //generate enemy object based on random selection and add in enemy list
+                    if (rand.Next(1, _gc.EnemyJetGenOdd) == 12)     //generate enemy object based on random selection and add in enemy list
                     {
-                        _ej.Add(new EnemyJet{MovementState = 0,RefX = PbConsole.Width,RefY = rand.Next(5, PbConsole.Height)});
+                        _ej.Add(new EnemyJet { MovementState = 0, RefX = PbConsole.Width, RefY = rand.Next(5, PbConsole.Height), Hp = (byte)((_gc.LevelCompleted + 1) * 1)});
+                    }
+
+                    if (rand.Next(0, _gc.Type2JetAppearanceOdd) == 10 && _gc.LevelCompleted > 0 && _ej.Select(x => x).Count(x => x.JetType == 2) < _gc.LevelCompleted * _gc.LevelCompleted)
+                    {
+                        _ej.Add(new EnemyJet { MovementState = 0, RefX = PbConsole.Width, RefY = rand.Next(5, PbConsole.Height), JetType = 2, Hp = (byte)((_gc.LevelCompleted + 1) * 2) });
                     }
                 }
-
+                //Special enemies from higher level
+                
+                
                 if (_ej.Count == 0) goto Skipped_ej;                //no enemy to process, skip this region
 
                 //Move enemy
@@ -434,13 +489,13 @@ namespace FlyingGame
                     //Move enemy according to Direction
                     switch (_ej[i].Direction)
                     {
-                        case 0: {_ej[i].RefX = _ej[i].RefX + 10; break;}
-                        case 1: {_ej[i].RefY = _ej[i].RefY + 5; break;}
-                        case -1: {_ej[i].RefY = _ej[i].RefY - 5; break;}
+                        case 0: {_ej[i].RefX = _ej[i].RefX + _gc.EnemyJetMovementDelta*2*_ej[i].JetType; break;}
+                        case 1: { _ej[i].RefY = _ej[i].RefY + _gc.EnemyJetMovementDelta * _ej[i].JetType; break; }
+                        case -1: { _ej[i].RefY = _ej[i].RefY - _gc.EnemyJetMovementDelta * _ej[i].JetType; break; }
                     }
 
                     //Continuous Move toward left
-                    _ej[i].RefX = _ej[i].RefX - 5;
+                    _ej[i].RefX = _ej[i].RefX - _gc.EnemyJetMovementDelta * _ej[i].JetType;
 
                     //Update movement state to apply drawing shape accordingly
                     _ej[i].MovementState++;
@@ -455,21 +510,17 @@ namespace FlyingGame
                         _ej[i].MovementState = 0;       //Do not allow movementState counter to go more than 6 count
 
                     //Draw enemy
-                    sky.FillPolygon(Brushes.Tomato, _ej[i].FuselagePosOne(_ej[i].RefX, _ej[i].RefY));
+                    sky.FillPolygon(_ej[i].JetType == 1 ? Brushes.Tomato : Brushes.DarkSlateGray, _ej[i].FuselagePosOne(_ej[i].RefX, _ej[i].RefY));
 
                     if (_ej[i].TwistEnemy)
                     {
-                        sky.FillPolygon(Brushes.DarkSlateGray,
-                            _ej[i].WingBottomPosTwo(_ej[i].RefX, _ej[i].RefY));
-                        sky.FillPolygon(Brushes.DarkSlateGray,
-                            _ej[i].WingTopPosTwo(_ej[i].RefX, _ej[i].RefY));
+                        sky.FillPolygon(_ej[i].JetType==1?Brushes.DarkSlateGray:Brushes.Salmon,_ej[i].WingBottomPosTwo(_ej[i].RefX, _ej[i].RefY));
+                        sky.FillPolygon(_ej[i].JetType == 1 ? Brushes.DarkSlateGray : Brushes.Salmon, _ej[i].WingTopPosTwo(_ej[i].RefX, _ej[i].RefY));
                     }
                     else
                     {
-                        sky.FillPolygon(Brushes.DarkSlateGray,
-                            _ej[i].WingTopPosOne(_ej[i].RefX, _ej[i].RefY));
-                        sky.FillPolygon(Brushes.DarkSlateGray,
-                            _ej[i].WingBottomPosOne(_ej[i].RefX, _ej[i].RefY));
+                        sky.FillPolygon(_ej[i].JetType == 1 ? Brushes.DarkSlateGray : Brushes.Salmon, _ej[i].WingTopPosOne(_ej[i].RefX, _ej[i].RefY));
+                        sky.FillPolygon(_ej[i].JetType == 1 ? Brushes.DarkSlateGray : Brushes.Salmon, _ej[i].WingBottomPosOne(_ej[i].RefX, _ej[i].RefY));
                     }
 
                     //destroy my jet & enemy jet on collision (when godmode is false)
@@ -513,7 +564,7 @@ namespace FlyingGame
                     //Fire enemy gun - Based on random number selection, add bullet object in enemy bullet list.
                     if (rand.Next(1, _gc.EnemyBulletGenOdd) == 15)
                     {
-                        _ejg.Add(new EnemyJetGunBullet{GunFireStart = true,Size = 10,X = _ej[i].X2,Y = _ej[i].Y2 - 3,IsBossGun = false});
+                        _ejg.Add(new EnemyJetGunBullet{GunFireStart = true,Size = (byte) (_gc.EnemyJetBulletSize + _ej[i].JetType-1),X = _ej[i].X2,Y = _ej[i].Y2 - 3,IsBossGun = false, JetType = _ej[i].JetType});
                     }
                 }
 
@@ -528,7 +579,7 @@ namespace FlyingGame
                     {
                         sky.FillEllipse(Brushes.Red, new Rectangle {Height = _ejg[i].Size, Width = _ejg[i].Size, X = _ejg[i].X, Y = _ejg[i].Y});
 
-                        _ejg[i].X = _ejg[i].X - _gc.EnemyJetBulletDelta; //Move bullet for next round drawing
+                        _ejg[i].X = _ejg[i].X - _gc.EnemyJetBulletDelta * _ejg[i].JetType; //Move bullet for next round drawing
                     }
 
                     //Attack my jet
@@ -555,7 +606,6 @@ namespace FlyingGame
 
                 #region PowerUps
             Powerups:
-
                 if (_pu.PowerUpType == 0 || _pu.PowerUpType > 3)    
                 {
                     //initiate
@@ -566,17 +616,21 @@ namespace FlyingGame
                         (_mj.CurrentBulletLimit == 10 && _pu.PowerUpType == 2) ||
                         (_mjb.BombRemains == 5 && _pu.PowerUpType == 1))
                         _pu.PowerUpType = 0;
-
+                    
                     if (_pu.PowerUpType > 3)
                     {
                         _pu.PowerUpType = 0;
                     }
                     else
                     {
+                        if (rand.Next(1, 3000) == 1500)                             //special power
+                            _pu.IsFullPower = true;
                         _pu.X = PbConsole.Width;                                    //Start on the far right
                         _pu.Y = rand.Next(1, PbConsole.Height);                     //Anywhere between top and bottom
                         if (_pu.Y > PbConsole.Height/2) _pu.IsTopToBottom = false;  //Set initial direction based on Y value
                     }
+
+                    //Special power up
                 }
 
                 //Process power up
@@ -616,13 +670,35 @@ namespace FlyingGame
                     ((_mj.RefY >= _pu.Y && _mj.RefY <= _pu.Y + _pu.Size) ||
                      (_mj.Y2 >= _pu.Y && _mj.Y2 <= _pu.Y + _pu.Size)))
                 {
-                    switch (_pu.PowerUpType)
-                    {
-                        case 1: {_mjb.BombRemains++;break;}
-                        case 2:{_mj.CurrentBulletLimit++;break;}
-                        case 3:{_mj.CurrentActiveGun++;break;}
-                    }
 
+                    if (_pu.IsFullPower)
+                    {
+                        _mjb.BombRemains = 5;
+                        _mj.CurrentActiveGun = 3;
+                        _mj.CurrentBulletLimit = 10;
+                        _mj.Hp = (sbyte) (_mj.Hp<10?10:_mj.Hp);
+                    }
+                    else
+                    {
+                        switch (_pu.PowerUpType)
+                        {
+                            case 1:
+                            {
+                                _mjb.BombRemains++;
+                                break;
+                            }
+                            case 2:
+                            {
+                                _mj.CurrentBulletLimit++;
+                                break;
+                            }
+                            case 3:
+                            {
+                                _mj.CurrentActiveGun++;
+                                break;
+                            }
+                        }
+                    }
                     //play power up sound
                     if (_gc.EnableSound)
                     {
@@ -653,7 +729,7 @@ namespace FlyingGame
                 {
                     sky.DrawPolygon(explostions.Colour, explostions.Points);
                     explostions.VisibilityCounter++;
-                    if (explostions.VisibilityCounter > _gc.ExplosionVisibleMaxTime)
+                    if (explostions.VisibilityCounter > _gc.ExplosionVisibleTimeMax)
                         explostions.VisibilityCounter = 0;  //Mark exposion for removal from list
                 }
 
@@ -684,10 +760,10 @@ namespace FlyingGame
 
                 switch (_eb.Direction)
                 {
-                    case 1: { _eb.RefY = _eb.RefY - _eb.Delta; break; } //Move up
-                    case 2: { _eb.RefX = _eb.RefX - _eb.Delta; break; } //Move left
-                    case 3: { _eb.RefY = _eb.RefY + _eb.Delta; break; } //Move down
-                    case 4: { _eb.RefX = _eb.RefX + _eb.Delta; break; } //Move right
+                    case 1: { _eb.RefY = _eb.RefY - _eb.MovementDelta; break; } //Move up
+                    case 2: { _eb.RefX = _eb.RefX - _eb.MovementDelta; break; } //Move left
+                    case 3: { _eb.RefY = _eb.RefY + _eb.MovementDelta; break; } //Move down
+                    case 4: { _eb.RefX = _eb.RefX + _eb.MovementDelta; break; } //Move right
                 }
 
                 //move to let till the whole boss appears in screen
@@ -762,13 +838,11 @@ namespace FlyingGame
                     if (_eb.BossDestroyedFireWorkCounter >= 100)
                     {
                         //Enough boss destroy fireworks, put the show to an end
-                        _eb = new EnemyBoss();
+                        
+                        ExplodeBomb();
                         LblBoss.Visible = false;
                         LblBossRem.Visible = false;
-                        _gc.BossAppearScore = (int) (_gc.BossAppearScore + _gc.BossAppearInterval * 1.5);
-                        _gc.LevelCompleted++;
-                        _eb.CurrHp = _eb.CurrHp + _gc.BossHpIncrement*_gc.LevelCompleted;
-                        _eb.OriginalHp = _eb.CurrHp + _gc.BossHpIncrement * _gc.LevelCompleted;
+                        LevelCompleted();                        
                     }
                 }
                 else
@@ -825,19 +899,19 @@ namespace FlyingGame
                 //Fire mini gun 1
                 if (rand.Next(0, _gc.BossMiniGunBulletGenOdd / _eb.FireLvlMiniGun) == 1)
                 {
-                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.MiniGun1X, Y = _eb.MiniGun1Y, Size = _gc.BossMiniGunBulletSize, InitialX = _eb.MiniGun1X, InitialY = _eb.MiniGun1Y, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = 8 });
+                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.MiniGun1X, Y = _eb.MiniGun1Y, Size = _gc.BossMiniGunBulletSize, InitialX = _eb.MiniGun1X, InitialY = _eb.MiniGun1Y, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = _gc.BossMiniGunBulletDelta });
                 }
 
                 //Fire mini gun 2
                 if (rand.Next(0, _gc.BossMiniGunBulletGenOdd / _eb.FireLvlMiniGun) == 2)
                 {
-                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.MiniGun2X, Y = _eb.MiniGun2Y, Size = _gc.BossMiniGunBulletSize, InitialX = _eb.MiniGun2X, InitialY = _eb.MiniGun2Y, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = 8 });
+                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.MiniGun2X, Y = _eb.MiniGun2Y, Size = _gc.BossMiniGunBulletSize, InitialX = _eb.MiniGun2X, InitialY = _eb.MiniGun2Y, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = _gc.BossMiniGunBulletDelta });
                 }
 
                 //Fire big gun
                 if (rand.Next(0, _gc.BossBigGunBulletGenOdd / _eb.FireLvlMiniGun) == 5)
                 {
-                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.BigGunX, Y = _eb.BigGunY, Size = _gc.BossBigGunBulletSize, InitialX = _eb.BigGunX, InitialY = _eb.BigGunY, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = 7, IsBigGun = true });
+                    _ejg.Add(new EnemyJetGunBullet { GunFireStart = true, IsBossGun = true, X = _eb.BigGunX, Y = _eb.BigGunY, Size = _gc.BossBigGunBulletSize, InitialX = _eb.BigGunX, InitialY = _eb.BigGunY, MyJetX = _mj.X2, MyJetY = _mj.Y2 - 5, DeltaX = _gc.BossBigGunBulletDelta, IsBigGun = true });
                 }
                
                 //Animate boss bullets
@@ -928,40 +1002,44 @@ namespace FlyingGame
                 }
 
                 #endregion
-                
-                #region Cleanup
+               
             Cleanup:
-                //remove redundant object drawings
-                for (int i = 0; i < _cL.Count; i++)
-                {
-                    if (!_cL[i].CloudInitiated) _cL.Remove(_cL[i]);
-                }
+
+                CleanUp();
                 
-                for (int i = 0; i < _mjg.Count; i++)
-                {
-                    if (!_mjg[i].GunFireStart) _mjg.Remove(_mjg[i]);
-                }
-
-                for (int i = 0; i < _ej.Count; i++)
-                {
-                    if (_ej[i].MakeRedundant) _ej.Remove(_ej[i]);
-                }
-
-                for (int i = 0; i < _ejg.Count; i++)
-                {
-                    if (!_ejg[i].GunFireStart) _ejg.Remove(_ejg[i]);
-                }
-
-                for (int i = 0; i < _exp.Count; i++)
-                {
-                    if (_exp[i].VisibilityCounter == 0) _exp.Remove(_exp[i]);
-                }
-
-                #endregion
+            EndDuties:
 
                 EndRoutine();
-
                 LevelAndHpUpdate();
+            }
+        }
+
+        private void CleanUp()
+        {
+            //remove redundant object drawings
+            for (int i = 0; i < _cL.Count; i++)
+            {
+                if (!_cL[i].CloudInitiated) _cL.Remove(_cL[i]);
+            }
+
+            for (int i = 0; i < _mjg.Count; i++)
+            {
+                if (!_mjg[i].GunFireStart) _mjg.Remove(_mjg[i]);
+            }
+
+            for (int i = 0; i < _ej.Count; i++)
+            {
+                if (_ej[i].MakeRedundant) _ej.Remove(_ej[i]);
+            }
+
+            for (int i = 0; i < _ejg.Count; i++)
+            {
+                if (!_ejg[i].GunFireStart) _ejg.Remove(_ejg[i]);
+            }
+
+            for (int i = 0; i < _exp.Count; i++)
+            {
+                if (_exp[i].VisibilityCounter == 0) _exp.Remove(_exp[i]);
             }
         }
 
@@ -983,6 +1061,58 @@ namespace FlyingGame
             if (_gc.EnemyBulletGenOdd < 16) _gc.EnemyBulletGenOdd = 16;
             if (_gc.BossMiniGunBulletGenOdd < 2) _gc.BossMiniGunBulletGenOdd = 2;
             if (_gc.BossBigGunBulletGenOdd < 6) _gc.BossBigGunBulletGenOdd = 6;
+        }
+
+        private void LevelCompleted()
+        {
+            if (_gc.LevelTransitionCountDown==0)
+            {
+                //Update level related
+                _gc.InLevelTransition = true;
+                _gc.LevelCompleted++;
+                _gc.LevelTransitionCountDown++;
+                
+                //Clear remaining foes and display banner
+                LblStartEndBanner.Visible = true;
+                LblStartEndBanner.ForeColor = Color.Teal;
+                LblStartEndBanner.Text = @"Level " + _gc.LevelCompleted + @" Clear! Prepare for next level.";
+                
+                //Update powerup related
+                _gc.PowerUpGenOdd = _gc.PowerUpGenOdd + 100;
+
+                //Update Enemy jet status
+                _gc.MaxEnemyPerLvl = (byte) (_gc.MaxEnemyPerLvl + 5);
+                
+                _gc.EnemyJetGenOdd = (byte) (_gc.EnemyJetGenOdd + 5);               //normal enemy gen goes down
+                _gc.EnemyBulletGenOdd = (byte) (_gc.EnemyBulletGenOdd - 2);
+                _gc.Type2JetAppearanceOdd = (byte) (_gc.Type2JetAppearanceOdd-5);   //special enemy gen goes up
+                
+                //Update boss status
+                _gc.BossAppearScore = (int) (_gc.BossAppearScore + _gc.BossAppearInterval*1.5);
+                _gc.BossHp = _gc.BossHpIncrement*_gc.LevelCompleted;
+
+                _eb = new EnemyBoss();
+                _eb.CurrHp = _eb.CurrHp + _gc.BossHpIncrement*_gc.LevelCompleted;
+                _eb.OriginalHp = _eb.CurrHp + _gc.BossHpIncrement*_gc.LevelCompleted;
+                _eb.BossMiniGunBulletDelta++;
+                _eb.BossMiniGunBulletSize++;
+                _eb.BossBigGunBulletDelta++;
+                _eb.BossBigGunBulletSize++;
+                _eb.BossBigGunBulletGenOdd = (byte)(_eb.BossBigGunBulletGenOdd - 10);
+                _eb.BossMiniGunBulletGenOdd = (byte)(_eb.BossMiniGunBulletGenOdd - 10);
+                _eb.BossSizeDeltaX = (byte) (_gc.LevelCompleted*24);
+                _eb.BossSizeDeltaY = (byte)(_gc.LevelCompleted * 8);
+            }
+            else
+            {
+                _gc.LevelTransitionCountDown++;
+                if (_gc.LevelTransitionCountDown >= 200)
+                {
+                    _gc.InLevelTransition = false;
+                    _gc.LevelTransitionCountDown = 0;
+                    LblStartEndBanner.Visible = false;
+                }
+            }
         }
 
         private void GameOver()

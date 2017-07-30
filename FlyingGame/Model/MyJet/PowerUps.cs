@@ -13,6 +13,7 @@ namespace FlyingGame.Model.MyJet
         public bool IsRightToLeft { get; set; }
         public bool IsTopToBottom { get; set; }
         public byte BounceCounter { get; set; }
+        public bool IsFullPower { get; set; }
         
         
         //Calculate poewr up size based on type
@@ -20,7 +21,11 @@ namespace FlyingGame.Model.MyJet
         {
             get
             {
-                if (PowerUpType == 1)       //Size Bomb up
+                if (IsFullPower)
+                {
+                    return 10;              //Special full power 
+                }
+                else if (PowerUpType == 1)  //Size Bomb up
                 {
                     return 20;
                 }
@@ -36,7 +41,11 @@ namespace FlyingGame.Model.MyJet
         {
             get
             {
-                if (Blink)
+                if (IsFullPower)
+                {
+                    return Brushes.GreenYellow;
+                }
+                else if (Blink)
                 {
                     return Brushes.Teal;            //Try power up blink in every other turn
                 }
@@ -66,6 +75,7 @@ namespace FlyingGame.Model.MyJet
             IsTopToBottom = true;
             PowerUpType = 0;
             BounceCounter = 0;
+            IsFullPower = false;
         }
     }
 }

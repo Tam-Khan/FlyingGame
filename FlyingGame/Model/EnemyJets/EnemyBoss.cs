@@ -1,4 +1,6 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
+using System.Resources;
 using FlyingGame.Model.Shared;
 
 namespace FlyingGame.Model.EnemyJets
@@ -6,7 +8,11 @@ namespace FlyingGame.Model.EnemyJets
     public class EnemyBoss:GameController
     {
         public bool IsBossInitiated { get; set; }
-        
+
+        //Boss to get chunkier as level goes up
+        public byte BossSizeDeltaX { get; set; }        
+        public byte BossSizeDeltaY { get; set; }
+
         public int RefX { get; set; }       
         public int RefY { get; set; }
         
@@ -31,16 +37,16 @@ namespace FlyingGame.Model.EnemyJets
         public int BigGunX { get { return RefX - 3; } }
         public int BigGunY { get { return RefY + 33; } }
         
-        public int X2{get { return RefX + 130; }}
+        public int X2{get { return RefX + 130 + BossSizeDeltaX; }}
         public int HitY1 {get { return RefY + 30; }}
-        public int HitY2 { get { return HitY1 + 25; } }
+        public int HitY2 { get { return HitY1 + 25 + BossSizeDeltaY; } }
         public byte Width { get; set; }
-        public byte Delta { get; set; }
+        public byte MovementDelta { get; set; }
 
         public int HitPerLevel{get { return OriginalHp/3; }}
 
         public int BossDestroyedFireWorkCounter { get; set; }
-
+        
         public EnemyBoss()
         {
             RefX = 0;
@@ -55,9 +61,9 @@ namespace FlyingGame.Model.EnemyJets
             ToggleBurner = false;
             BossDestroyedFireWorkCounter = 0;
             Width = 55;
-            Delta = 2;
+            MovementDelta = 2;
         }
-
+        
         //Process polygon drawing points for various parts of boss
 
         #region Level1 Boss
@@ -70,12 +76,12 @@ namespace FlyingGame.Model.EnemyJets
             points[1] = new Point(RefX + 7, RefY + 24);
             points[2] = new Point(RefX + 12, RefY + 24);
             points[3] = new Point(RefX + 16, RefY + 20);
-            points[4] = new Point(RefX + 115, RefY + 20);
-            points[5] = new Point(RefX + 117, RefY + 21);
-            points[6] = new Point(RefX + 117, RefY + 43);
-            points[7] = new Point(RefX + 115, RefY + 44);
-            points[8] = new Point(RefX + 14, RefY + 43);
-            points[9] = new Point(RefX + 0, RefY + 36);
+            points[4] = new Point(RefX + 115 + BossSizeDeltaX, RefY + 20);
+            points[5] = new Point(RefX + 117 + BossSizeDeltaX, RefY + 21);
+            points[6] = new Point(RefX + 117 + BossSizeDeltaX, RefY + 43 + BossSizeDeltaY);
+            points[7] = new Point(RefX + 115 + BossSizeDeltaX, RefY + 44 + BossSizeDeltaY);
+            points[8] = new Point(RefX + 14, RefY + 43 + BossSizeDeltaY);
+            points[9] = new Point(RefX + 0, RefY + 36 + BossSizeDeltaY);
             
             return points;
         }
@@ -96,10 +102,10 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[4];
 
-            points[0] = new Point(RefX + 8, RefY + 39);
-            points[1] = new Point(RefX + -3, RefY + 39);
-            points[2] = new Point(RefX + -3, RefY + 41);
-            points[3] = new Point(RefX + 8, RefY + 41);
+            points[0] = new Point(RefX + 8, RefY + 39 + BossSizeDeltaY);
+            points[1] = new Point(RefX + -3, RefY + 39 + BossSizeDeltaY);
+            points[2] = new Point(RefX + -3, RefY + 41 + BossSizeDeltaY);
+            points[3] = new Point(RefX + 8, RefY + 41 + BossSizeDeltaY);
 
             return points;
         }
@@ -110,8 +116,8 @@ namespace FlyingGame.Model.EnemyJets
 
             points[0] = new Point(RefX + 0, RefY + 31);
             points[1] = new Point(RefX - 3, RefY + 31);
-            points[2] = new Point(RefX - 3, RefY + 35);
-            points[3] = new Point(RefX + 0, RefY + 35);
+            points[2] = new Point(RefX - 3, RefY + 35 + BossSizeDeltaY);
+            points[3] = new Point(RefX + 0, RefY + 35 + BossSizeDeltaY);
 
             return points;
         }
@@ -120,14 +126,14 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[8];
 
-            points[0] = new Point(RefX + 37, RefY + 32);
-            points[1] = new Point(RefX + 38, RefY + 31);
-            points[2] = new Point(RefX + 109, RefY + 31);
-            points[3] = new Point(RefX + 110, RefY + 32);
-            points[4] = new Point(RefX + 110, RefY + 34);
-            points[5] = new Point(RefX + 109, RefY + 35);
-            points[6] = new Point(RefX + 38, RefY + 35);
-            points[7] = new Point(RefX + 37, RefY + 34);
+            points[0] = new Point(RefX + 37, RefY + 32 + BossSizeDeltaY);
+            points[1] = new Point(RefX + 38, RefY + 31 + BossSizeDeltaY);
+            points[2] = new Point(RefX + 109 + BossSizeDeltaX, RefY + 31 + BossSizeDeltaY);
+            points[3] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 32 + BossSizeDeltaY);
+            points[4] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 34 + BossSizeDeltaY);
+            points[5] = new Point(RefX + 109 + BossSizeDeltaX, RefY + 35 + BossSizeDeltaY);
+            points[6] = new Point(RefX + 38, RefY + 35 + BossSizeDeltaY);
+            points[7] = new Point(RefX + 37, RefY + 34 + BossSizeDeltaY);
 
             return points;
         }
@@ -136,10 +142,10 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[4];
 
-            points[0] = new Point(RefX + 65, RefY + 45);
-            points[1] = new Point(RefX + 76, RefY + 50);
-            points[2] = new Point(RefX + 106, RefY + 50);
-            points[3] = new Point(RefX + 110, RefY + 45);
+            points[0] = new Point(RefX + 65, RefY + 45 + BossSizeDeltaY);
+            points[1] = new Point(RefX + 76, RefY + 50 + BossSizeDeltaY);
+            points[2] = new Point(RefX + 106 + BossSizeDeltaX, RefY + 50 + BossSizeDeltaY);
+            points[3] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 45 + BossSizeDeltaY);
             return points;
         }
 
@@ -151,8 +157,8 @@ namespace FlyingGame.Model.EnemyJets
             points[1] = new Point(RefX + 43, RefY + 17);
             points[2] = new Point(RefX + 56, RefY + 17);
             points[3] = new Point(RefX + 63, RefY + 13);
-            points[4] = new Point(RefX + 111, RefY + 13);
-            points[5] = new Point(RefX + 116, RefY + 20);
+            points[4] = new Point(RefX + 111 + BossSizeDeltaX, RefY + 13);
+            points[5] = new Point(RefX + 116 + BossSizeDeltaX, RefY + 20);
 
             return points;
         }
@@ -161,10 +167,10 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[4];
 
-            points[0] = new Point(RefX + 81, RefY + 13);
-            points[1] = new Point(RefX + 91, RefY + 0);
-            points[2] = new Point(RefX + 103, RefY + 0);
-            points[3] = new Point(RefX + 108, RefY + 13);
+            points[0] = new Point(RefX + 81 + BossSizeDeltaX, RefY + 13);
+            points[1] = new Point(RefX + 91 + BossSizeDeltaX, RefY + 0);
+            points[2] = new Point(RefX + 103 + BossSizeDeltaX, RefY + 0);
+            points[3] = new Point(RefX + 108 + BossSizeDeltaX, RefY + 13);
 
             return points;
         }
@@ -173,10 +179,10 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[4];
 
-            points[0] = new Point(RefX + 118, RefY + 22);
-            points[1] = new Point(RefX + 124, RefY + 26);
-            points[2] = new Point(RefX + 124, RefY + 39);
-            points[3] = new Point(RefX + 118, RefY + 43);
+            points[0] = new Point(RefX + 118 + BossSizeDeltaX, RefY + 22);
+            points[1] = new Point(RefX + 124 + BossSizeDeltaX, RefY + 26);
+            points[2] = new Point(RefX + 124 + BossSizeDeltaX, RefY + 39 + BossSizeDeltaY);
+            points[3] = new Point(RefX + 118 + BossSizeDeltaX, RefY + 43 + BossSizeDeltaY);
            
             return points;
         }
@@ -185,12 +191,12 @@ namespace FlyingGame.Model.EnemyJets
         {
             var points = new Point[6];
 
-            points[0] = new Point(RefX + 125, RefY + 27);
-            points[1] = new Point(RefX + 128, RefY + 27);
-            points[2] = new Point(RefX + 131, RefY + 30);
-            points[3] = new Point(RefX + 131, RefY + 35);
-            points[4] = new Point(RefX + 128, RefY + 38);
-            points[5] = new Point(RefX + 125, RefY + 38);
+            points[0] = new Point(RefX + 125 + BossSizeDeltaX, RefY + 27);
+            points[1] = new Point(RefX + 128 + BossSizeDeltaX, RefY + 27);
+            points[2] = new Point(RefX + 131 + BossSizeDeltaX, RefY + 30);
+            points[3] = new Point(RefX + 131 + BossSizeDeltaX, RefY + 35 + BossSizeDeltaY);
+            points[4] = new Point(RefX + 128 + BossSizeDeltaX, RefY + 38 + BossSizeDeltaY);
+            points[5] = new Point(RefX + 125 + BossSizeDeltaX, RefY + 38 + BossSizeDeltaY);
 
             return points;
         }

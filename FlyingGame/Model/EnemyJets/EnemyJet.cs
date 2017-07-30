@@ -1,8 +1,9 @@
 ﻿using System.Drawing;
+using FlyingGame.Model.Shared;
 
 namespace FlyingGame.Model.EnemyJets
 {
-    public class EnemyJet
+    public class EnemyJet:GameController
     {
         public int RefX { get; set; }
         public int RefY { get; set; }
@@ -10,6 +11,8 @@ namespace FlyingGame.Model.EnemyJets
         public bool TwistEnemy { get; set; }
         public sbyte Direction { get; set; }
         public bool MakeRedundant { get; set; }
+        public byte JetType { get; set; }
+        public byte Hp { get; set; }
        
         public EnemyJet()
         {
@@ -19,6 +22,7 @@ namespace FlyingGame.Model.EnemyJets
             TwistEnemy = false;
             Direction = 4;
             MakeRedundant = false;
+            JetType = 1;
         }
         
         public int X2
