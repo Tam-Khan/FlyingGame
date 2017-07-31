@@ -1,4 +1,5 @@
 ﻿
+using System.Runtime.Remoting;
 using System.Windows.Forms;
 
 namespace FlyingGame.Model.Shared
@@ -11,50 +12,64 @@ namespace FlyingGame.Model.Shared
         public int NextScoreCheckPoint { get; set; }
         public bool InLevelTransition { get; set; }
         public byte LevelTransitionCountDown { get; set; }
-
-        public byte MaxEnemyPerLvl { get; set; }
-        public byte ExplosionVisibleTimeMax { get; set; }
-        public byte BombExplosionVisibleTimeMax { get; set; }
-
-        //Sizes
-        public byte BossMiniGunBulletSize { get; set; }
-        public byte BossBigGunBulletSize { get; set; }
-        public byte MyJetBulletSize { get; set; }
-        public byte EnemyJetBulletSize { get; set; }
-
-        //Toggles
-        public bool GroundObjectOff { get; set; }
-        public bool SkyobjectOff { get; set; }
-
-        //Deltas
-        public byte MountainDelta { get; set; }
+        public int LevelCompleted { get; set; }
+        public byte DayPhase { get; set; }
         
-        public byte MyJetDelta { get; set; }            
-        public byte MyJetBombDelta { get; set; }
-        public byte EnemyJetMovementDelta { get; set; }
-        public byte EnemyJetBulletDelta { get; set; }
-        public byte BossBigGunBulletDelta { get; set; }
-        public byte BossMiniGunBulletDelta { get; set; }
-
+        //Ground object related
+        public bool GroundObjectOff { get; set; }
+        
+        //Sky object related
+        public bool SkyobjectOff { get; set; }
         public byte CloudGenerationOdd { get; set; } 
 
-        //Odds
-        public byte EnemyJetGenOdd { get; set; }
-        public byte EnemyBulletGenOdd { get; set; }
-        public byte BossMiniGunBulletGenOdd { get; set; }
-        public byte BossBigGunBulletGenOdd { get; set; }
-        public byte Type2JetAppearanceOdd { get; set; }
-        
+        //My jet related
+        public byte MyJetDelta { get; set; }
+        public byte MyJetBombDelta { get; set; }
+        public byte MyJetBulletSize { get; set; }
         public int PowerUpGenOdd { get; set; }
+
+        //My jet other
+
+        public byte RegularExplosionVisibleTimeMax { get; set; }
+        public byte BombExplosionVisibleTimeMax { get; set; }
+        
+        //Enemy jet related
+        public byte MaxEnemyJetT1PerLvl { get; set; }
+        public byte MaxEnemyJetT2PerLvl { get; set; }
+        public byte EnemySmallJetBulletSize { get; set; }
+        public byte EnemyJetT1MovementDelta { get; set; }
+        public byte EnemyJetT2MovementDelta { get; set; }
+        public byte EnemyJetT1BulletDelta { get; set; }
+        public byte EnemyJetT2BulletDelta { get; set; }
+        public byte EnemyJetT1GenOdd { get; set; }
+        public byte EnemyJetT2GenOdd { get; set; }
+        public byte EnemyJetT1Hp { get; set; }
+        public byte EnemyJetT2Hp { get; set; }
+        
+        //Enemy heli related
+        public byte EnemyHeliT1BulletPerRound { get; set; }
+        public byte EnemyHeliT1BulletSize { get; set; }
+        public byte EnemyHeliT1MovementDelta { get; set; }
+        public byte EnemyHeliT1BulletDelta { get; set; }
+        public byte EnemyHeliT1GenOdd { get; set; }
+        public byte MaxEnemyHeliT1PerLvl { get; set; }
+        public byte EnemyHeliT1Hp { get; set; }
+
+        //Enemy shared
+        public byte EnemyBulletGenOdd { get; set; }
+        public byte SmallEnemyBulletMax { get; set; }
         
         //Boss related
+        public byte BossMiniGunBulletSize { get; set; }
+        public byte BossBigGunBulletSize { get; set; }
+        public byte BossBigGunBulletDelta { get; set; }
+        public byte BossMiniGunBulletDelta { get; set; }
+        public byte BossMiniGunBulletGenOdd { get; set; }
+        public byte BossBigGunBulletGenOdd { get; set; }
         public int BossHp { get; set; }
         public int BossAppearScore { get; set; }
         public int BossAppearInterval { get; set; }
         public int BossHpIncrement { get; set; }
-        
-        //Level related
-        public int LevelCompleted { get; set; }
         
         //others
         public bool GodMode { get; set; }
@@ -69,45 +84,73 @@ namespace FlyingGame.Model.Shared
             NextScoreCheckPoint = 100;
             InLevelTransition = false;
             LevelTransitionCountDown = 0;
-
-            SkyobjectOff = false;
+            LevelCompleted = 0;
+            DayPhase = 1;
+            
+            //Ground background related
             GroundObjectOff = false;
 
-            MountainDelta = 5;
+            //Sky background related
+            SkyobjectOff = false;
+            CloudGenerationOdd = 50;           //Next cloud may generate right after 50% generation of current cloud and so, overlap
+
+            //Myjet related
+
             MyJetDelta = 5;
             MyJetBombDelta = 5;
-            EnemyJetMovementDelta = 3;
-            EnemyJetBulletDelta = 6;
-            BossMiniGunBulletDelta = 7;
-            BossBigGunBulletDelta = 8;
-
-            CloudGenerationOdd = 50;           //Next cloud may generate right after 75% generation of current cloud and so, creating overlap
-
             MyJetBulletSize = 3;
-            EnemyJetBulletSize = 10;
-            BossMiniGunBulletSize = 10;
-            BossBigGunBulletSize = 20;
-            
-            MaxEnemyPerLvl = 5;
-            
-            EnemyJetGenOdd = 100;
-            EnemyBulletGenOdd = 50;
-            BossMiniGunBulletGenOdd = 100;
-            BossBigGunBulletGenOdd = 200;
-            Type2JetAppearanceOdd = 100;
-
             PowerUpGenOdd = 1500;
-            ExplosionVisibleTimeMax = 10;
-            
-            //Change following 4 values to control level duration (quicker the boss appears and gets killed, quicker the level finishes)
-            BossHp = 200;                       
-            BossAppearScore = 500;              
-            BossAppearInterval = 500;           
-            BossHpIncrement = 100;              
-            
-            LevelCompleted = 0;
+
+            //Myjet other
+            RegularExplosionVisibleTimeMax = 10;
             BombExplosionVisibleTimeMax = 60;
             
+            //Enemy jet related
+            EnemyJetT1MovementDelta = 3;
+            EnemyJetT2MovementDelta = 6;
+            EnemyJetT1BulletDelta = 6;
+            EnemyJetT2BulletDelta = 6;
+            EnemySmallJetBulletSize = 10;
+            MaxEnemyJetT1PerLvl = 4;
+            EnemyJetT1GenOdd = 100;
+
+            MaxEnemyJetT2PerLvl = 0;
+            EnemyJetT2GenOdd = 100;
+
+            EnemyJetT1Hp = 1;
+            EnemyJetT2Hp = 2;
+
+            //Enemy heli related
+            EnemyHeliT1BulletSize = 6;
+            EnemyHeliT1BulletDelta = 5;
+            EnemyHeliT1MovementDelta = 2;
+            EnemyHeliT1BulletPerRound = 3;
+            MaxEnemyHeliT1PerLvl = 1;
+            EnemyHeliT1GenOdd = 250;
+
+            EnemyHeliT1Hp = 10;
+            
+            //Enemy shared
+            EnemyBulletGenOdd = 50;
+            SmallEnemyBulletMax = 10; 
+
+            //Boss related
+            BossMiniGunBulletDelta = 7;
+            BossMiniGunBulletSize = 10;
+            
+            BossBigGunBulletSize = 20;
+            BossBigGunBulletDelta = 8;
+            
+            BossMiniGunBulletGenOdd = 100;
+            BossBigGunBulletGenOdd = 200;
+            
+            //follwing four values determine level durations
+            BossHp = 300;                       
+            BossAppearScore = 500;              
+            BossAppearInterval = 500;           
+            BossHpIncrement = 200;              
+            
+            //Debug helpers
             GodMode = false;                    //true: No destroying my jet
             EnableSound = true;
             IsFullPowered = false;

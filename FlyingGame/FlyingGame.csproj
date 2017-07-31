@@ -49,9 +49,10 @@
     <Compile Include="MainConsole.Designer.cs">
       <DependentUpon>MainConsole.cs</DependentUpon>
     </Compile>
-    <Compile Include="Model\EnemyJets\EnemyBoss.cs" />
-    <Compile Include="Model\EnemyJets\EnemyJet.cs" />
-    <Compile Include="Model\EnemyJets\EnemyJetGunBullet.cs" />
+    <Compile Include="Model\Enemy\Boss\PlaneBoss.cs" />
+    <Compile Include="Model\Enemy\Helis\SmallHeli.cs" />
+    <Compile Include="Model\Enemy\Jet\SmallJet.cs" />
+    <Compile Include="Model\Enemy\EnemyBullet.cs" />
     <Compile Include="Model\MyJet\PowerUps.cs" />
     <Compile Include="Model\Shared\CloudFactory.cs" />
     <Compile Include="Model\Shared\Explosion.cs" />

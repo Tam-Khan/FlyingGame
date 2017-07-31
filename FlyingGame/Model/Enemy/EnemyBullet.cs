@@ -1,16 +1,16 @@
-﻿using System.Windows.Forms;
-
-namespace FlyingGame.Model.EnemyJets
+﻿namespace FlyingGame.Model.Enemy
 {
-    public class EnemyJetGunBullet
+    public class EnemyBullet
     {
         public int X { get; set; }
         public int Y { get; set; }
         public byte Size { get; set; }
         public bool GunFireStart { get; set; }
+        
         public bool IsBossGun { get; set; }
         public bool IsBigGun { get; set; }
-        public byte JetType { get; set; }
+        
+        public bool IsHeliGun { get; set; }
         
         public int InitialX { get; set; }
         public int InitialY { get; set; }
@@ -19,7 +19,7 @@ namespace FlyingGame.Model.EnemyJets
 
         public int DeltaX { get; set; }
 
-        //try to calculate bullet vertical movement change based on my jet's location (used in boss gun fire)
+        //try to calculate bullet vertical movement change based on my jet's location (used in boss and heli gun fire)
         public double DeltaGunTargetY
         {
             get
@@ -31,13 +31,14 @@ namespace FlyingGame.Model.EnemyJets
             }                                                                                                                  //Myjet*
         }
 
-        public EnemyJetGunBullet()
+        public EnemyBullet()
         {
             Size = 3;
             GunFireStart = false;
             IsBossGun = false;
             IsBigGun = false;
             DeltaX = 8;
+            IsHeliGun = false;
         }
     }
 }

@@ -1,11 +1,9 @@
-﻿using System;
-using System.Drawing;
-using System.Resources;
+﻿using System.Drawing;
 using FlyingGame.Model.Shared;
 
-namespace FlyingGame.Model.EnemyJets
+namespace FlyingGame.Model.Enemy.Boss
 {
-    public class EnemyBoss:GameController
+    public class PlaneBoss:GameController
     {
         public bool IsBossInitiated { get; set; }
 
@@ -32,10 +30,10 @@ namespace FlyingGame.Model.EnemyJets
         public int MiniGun1Y { get { return RefY + 27; } }
         
         public int MiniGun2X { get { return RefX - 3; } }
-        public int MiniGun2Y { get { return RefY + 40; } }
+        public int MiniGun2Y { get { return RefY + 40 + BossSizeDeltaY; } }
         
-        public int BigGunX { get { return RefX - 3; } }
-        public int BigGunY { get { return RefY + 33; } }
+        public int BigGunX { get { return RefX + 33; } }
+        public int BigGunY { get { return RefY + 33 + BossSizeDeltaY; } }
         
         public int X2{get { return RefX + 130 + BossSizeDeltaX; }}
         public int HitY1 {get { return RefY + 30; }}
@@ -47,7 +45,7 @@ namespace FlyingGame.Model.EnemyJets
 
         public int BossDestroyedFireWorkCounter { get; set; }
         
-        public EnemyBoss()
+        public PlaneBoss()
         {
             RefX = 0;
             RefY = 0;
@@ -109,31 +107,33 @@ namespace FlyingGame.Model.EnemyJets
 
             return points;
         }
-
-        public Point[] BigGun()
-        {
-            var points = new Point[4];
-
-            points[0] = new Point(RefX + 0, RefY + 31);
-            points[1] = new Point(RefX - 3, RefY + 31);
-            points[2] = new Point(RefX - 3, RefY + 35 + BossSizeDeltaY);
-            points[3] = new Point(RefX + 0, RefY + 35 + BossSizeDeltaY);
-
-            return points;
-        }
-
-        public Point[] WingMiddle()
+        
+        public Point[] MiddleWingType()
         {
             var points = new Point[8];
 
-            points[0] = new Point(RefX + 37, RefY + 32 + BossSizeDeltaY);
-            points[1] = new Point(RefX + 38, RefY + 31 + BossSizeDeltaY);
-            points[2] = new Point(RefX + 109 + BossSizeDeltaX, RefY + 31 + BossSizeDeltaY);
-            points[3] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 32 + BossSizeDeltaY);
+            points[0] = new Point(RefX + 37, RefY + 32);
+            points[1] = new Point(RefX + 38, RefY + 31);
+            points[2] = new Point(RefX + 109 + BossSizeDeltaX, RefY + 31);
+            points[3] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 32);
             points[4] = new Point(RefX + 110 + BossSizeDeltaX, RefY + 34 + BossSizeDeltaY);
             points[5] = new Point(RefX + 109 + BossSizeDeltaX, RefY + 35 + BossSizeDeltaY);
             points[6] = new Point(RefX + 38, RefY + 35 + BossSizeDeltaY);
             points[7] = new Point(RefX + 37, RefY + 34 + BossSizeDeltaY);
+
+            return points;
+        }
+
+        public Point[] BigGun()
+        {
+            var points = new Point[6];
+
+            points[0] = new Point(RefX + 36, RefY + 31);
+            points[1] = new Point(RefX + 31, RefY + 31);
+            points[2] = new Point(RefX + 30, RefY + 32);
+            points[3] = new Point(RefX + 30, RefY + 34 + BossSizeDeltaY);
+            points[4] = new Point(RefX + 31, RefY + 35 + BossSizeDeltaY);
+            points[5] = new Point(RefX + 36, RefY + 35 + BossSizeDeltaY);
 
             return points;
         }

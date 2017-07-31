@@ -13,9 +13,14 @@ namespace FlyingGame.Model.Shared
         public Brush MountainColor { get; set; }
         public int RefX { get; set; }
         public int RefY { get; set; }
-        public byte DeltaX { get; set; }
+        public byte MountainMoveDeltaX { get; set; }
         public Point[] ProcessedPoints { get; set; }
-        
+
+        public GroundObject()
+        {
+            MountainMoveDeltaX = 5;
+        }
+
         //Process Polygon points for cloud shape drawing
         public Point[] MountainPoints()
         {
@@ -46,7 +51,7 @@ namespace FlyingGame.Model.Shared
             {
                 for(int i=0; i<ProcessedPoints.Count();i++)
                 {
-                    points[i] = new Point(ProcessedPoints[i].X-DeltaX,ProcessedPoints[i].Y);
+                    points[i] = new Point(ProcessedPoints[i].X-MountainMoveDeltaX,ProcessedPoints[i].Y);
                 }
 
                 ProcessedPoints = points;
