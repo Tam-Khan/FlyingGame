@@ -8,14 +8,19 @@ namespace FlyingGame.Model.Enemy.Helis
     {
         public int RefX { get; set; }
         public int RefY { get; set; }
+        
+        public byte Width { get; set; }
+        public byte Height { get; set; }
+
+        public int X2 { get { return RefX + Width; } }
+        public int Y2 { get { return RefY + Height; } }    
+        
+        
         public bool RotorAtFront { get; set; }
         public sbyte Direction { get; set; }
         public bool MakeRedundant { get; set; }
         public byte MovmementDelta { get; set; }
         public byte Hp { get; set; }
-        public byte Height { get; set; }
-        public int X2{get { return RefX + 70; }}        //Approximate width
-        public int Y2 { get { return RefY + Height; } }     //Approximate height
         public byte StallMovementCounter { get; set; }
         public bool InitiateMove { get; set; }
 
@@ -23,7 +28,8 @@ namespace FlyingGame.Model.Enemy.Helis
         {
             RefX = 0;
             RefY = 0;
-            Height = 20;
+            Width = 70;
+            Height = 24;
             RotorAtFront = true;
             Direction = 4;
             MakeRedundant = false;

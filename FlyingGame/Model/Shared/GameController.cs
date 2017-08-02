@@ -60,12 +60,14 @@ namespace FlyingGame.Model.Shared
         public byte SmallEnemyBulletMax { get; set; }
         
         //Boss related
+        public byte BossType { get; set; }
         public byte BossMiniGunBulletSize { get; set; }
         public byte BossBigGunBulletSize { get; set; }
         public byte BossBigGunBulletDelta { get; set; }
         public byte BossMiniGunBulletDelta { get; set; }
         public byte BossMiniGunBulletGenOdd { get; set; }
         public byte BossBigGunBulletGenOdd { get; set; }
+        
         public int BossHp { get; set; }
         public int BossAppearScore { get; set; }
         public int BossAppearInterval { get; set; }
@@ -106,10 +108,10 @@ namespace FlyingGame.Model.Shared
             BombExplosionVisibleTimeMax = 60;
             
             //Enemy jet related
-            EnemyJetT1MovementDelta = 3;
-            EnemyJetT2MovementDelta = 6;
-            EnemyJetT1BulletDelta = 6;
-            EnemyJetT2BulletDelta = 6;
+            EnemyJetT1MovementDelta = 2;
+            EnemyJetT2MovementDelta = 4;
+            EnemyJetT1BulletDelta = 4;
+            EnemyJetT2BulletDelta = 4;
             EnemySmallJetBulletSize = 10;
             MaxEnemyJetT1PerLvl = 4;
             EnemyJetT1GenOdd = 100;
@@ -124,30 +126,32 @@ namespace FlyingGame.Model.Shared
             EnemyHeliT1BulletSize = 6;
             EnemyHeliT1BulletDelta = 5;
             EnemyHeliT1MovementDelta = 2;
-            EnemyHeliT1BulletPerRound = 3;
+            EnemyHeliT1BulletPerRound = 2;
             MaxEnemyHeliT1PerLvl = 1;
             EnemyHeliT1GenOdd = 250;
 
             EnemyHeliT1Hp = 10;
             
             //Enemy shared
-            EnemyBulletGenOdd = 50;
+            EnemyBulletGenOdd = 100;
             SmallEnemyBulletMax = 10; 
 
             //Boss related
-            BossMiniGunBulletDelta = 7;
+            BossType = 1;
+
+            BossMiniGunBulletDelta = 5;
             BossMiniGunBulletSize = 10;
             
             BossBigGunBulletSize = 20;
-            BossBigGunBulletDelta = 8;
+            BossBigGunBulletDelta = 6;
             
             BossMiniGunBulletGenOdd = 100;
             BossBigGunBulletGenOdd = 200;
             
             //follwing four values determine level durations
-            BossHp = 300;                       
+            BossHp = 400;                       
             BossAppearScore = 500;              
-            BossAppearInterval = 500;           
+            BossAppearInterval = 600;           
             BossHpIncrement = 200;              
             
             //Debug helpers

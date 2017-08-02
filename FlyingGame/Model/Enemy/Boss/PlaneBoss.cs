@@ -1,31 +1,9 @@
 ﻿using System.Drawing;
-using FlyingGame.Model.Shared;
 
 namespace FlyingGame.Model.Enemy.Boss
 {
-    public class PlaneBoss:GameController
+    public class PlaneBoss:Boss
     {
-        public bool IsBossInitiated { get; set; }
-
-        //Boss to get chunkier as level goes up
-        public byte BossSizeDeltaX { get; set; }        
-        public byte BossSizeDeltaY { get; set; }
-
-        public int RefX { get; set; }       
-        public int RefY { get; set; }
-        
-        public int OriginalHp { get; set; }
-        public int CurrHp { get; set; }
-        public byte CurrHitLevel { get; set; }
-        
-        public byte FireLvlMiniGun { get; set; }
-        public byte FireLvlBigGun { get; set; }
-        
-        public byte Direction { get; set; }
-        public byte PrevDirection { get; set; }
-        
-        public bool ToggleBurner { get; set; }
-
         public int MiniGun1X { get { return RefX - 3; } }
         public int MiniGun1Y { get { return RefY + 27; } }
         
@@ -35,33 +13,45 @@ namespace FlyingGame.Model.Enemy.Boss
         public int BigGunX { get { return RefX + 33; } }
         public int BigGunY { get { return RefY + 33 + BossSizeDeltaY; } }
         
-        public int X2{get { return RefX + 130 + BossSizeDeltaX; }}
+        public int X2{get { return RefX + Width; }}
         public int HitY1 {get { return RefY + 30; }}
         public int HitY2 { get { return HitY1 + 25 + BossSizeDeltaY; } }
-        public byte Width { get; set; }
-        public byte MovementDelta { get; set; }
-
-        public int HitPerLevel{get { return OriginalHp/3; }}
-
-        public int BossDestroyedFireWorkCounter { get; set; }
         
+        public int Height { get; set; }
+        public int Width { get; set; }
+
         public PlaneBoss()
         {
             RefX = 0;
             RefY = 0;
             IsBossInitiated = false;
-            OriginalHp = BossHp;
-            CurrHp = BossHp;
             CurrHitLevel = 1;
             FireLvlBigGun = 1;
             FireLvlMiniGun = 1;
             Direction = 0;
             ToggleBurner = false;
             BossDestroyedFireWorkCounter = 0;
-            Width = 55;
+            Height = 55 + BossSizeDeltaY;
+            Width = 130 + BossSizeDeltaX;
             MovementDelta = 2;
         }
-        
+
+        public void ResetBasics()
+        {
+            RefX = 0;
+            RefY = 0;
+            IsBossInitiated = false;
+            CurrHitLevel = 1;
+            FireLvlBigGun = 1;
+            FireLvlMiniGun = 1;
+            Direction = 0;
+            ToggleBurner = false;
+            BossDestroyedFireWorkCounter = 0;
+            Height = 55 + BossSizeDeltaY;
+            Width = 130 + BossSizeDeltaX;
+            MovementDelta = 2;
+        }
+
         //Process polygon drawing points for various parts of boss
 
         #region Level1 Boss
@@ -167,8 +157,8 @@ namespace FlyingGame.Model.Enemy.Boss
         {
             var points = new Point[4];
 
-            points[0] = new Point(RefX + 81 + BossSizeDeltaX, RefY + 13);
-            points[1] = new Point(RefX + 91 + BossSizeDeltaX, RefY + 0);
+            points[0] = new Point(RefX + 81 + BossSizeDeltaX/2 , RefY + 13);
+            points[1] = new Point(RefX + 91 + BossSizeDeltaX/2 , RefY + 0);
             points[2] = new Point(RefX + 103 + BossSizeDeltaX, RefY + 0);
             points[3] = new Point(RefX + 108 + BossSizeDeltaX, RefY + 13);
 

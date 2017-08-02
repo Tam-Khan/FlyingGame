@@ -44,7 +44,7 @@ namespace FlyingGame.Model.MyJet
             return points;
         }
 
-        public Point[] FuselagePosOne()       //When stationery
+        public Point[] Fuselage()       //When stationery
         {
             var points = new Point[8];
             points[0] = new Point(RefX + 5, RefY + 5+3);

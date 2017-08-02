@@ -49,7 +49,9 @@
     <Compile Include="MainConsole.Designer.cs">
       <DependentUpon>MainConsole.cs</DependentUpon>
     </Compile>
+    <Compile Include="Model\Enemy\Boss\Boss.cs" />
     <Compile Include="Model\Enemy\Boss\PlaneBoss.cs" />
+    <Compile Include="Model\Enemy\Boss\RocketBoss.cs" />
     <Compile Include="Model\Enemy\Helis\SmallHeli.cs" />
     <Compile Include="Model\Enemy\Jet\SmallJet.cs" />
     <Compile Include="Model\Enemy\EnemyBullet.cs" />

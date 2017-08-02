@@ -1,17 +1,23 @@
-﻿namespace FlyingGame.Model.Enemy
+﻿using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+
+namespace FlyingGame.Model.Enemy
 {
     public class EnemyBullet
     {
+        private int _deltaGunTargetY;
         public int X { get; set; }
         public int Y { get; set; }
         public byte Size { get; set; }
         public bool GunFireStart { get; set; }
+
+        public bool IsHollowBullet { get; set; }
+        public Brush Colour { get; set; }
+        public Pen ColourPen { get; set; }
         
-        public bool IsBossGun { get; set; }
-        public bool IsBigGun { get; set; }
-        
-        public bool IsHeliGun { get; set; }
-        
+        public byte Damage { get; set; }
+
         public int InitialX { get; set; }
         public int InitialY { get; set; }
         public int MyJetX { get; set; }
@@ -24,21 +30,25 @@
         {
             get
             {
+                if (_deltaGunTargetY != 0) return _deltaGunTargetY;
+                if ((InitialX - MyJetX) < 0 || MyJetX == 0) return 0;
                 double diffX = InitialX - MyJetX;                   //X difference between my jet and bullet's initial x              ---------X diff------* Bullet
                 double diffY = MyJetY-InitialY;                     //Y difference between my jet and bullet's initial y              |
                 double countRoundToCoverDiffX = diffX/DeltaX;       //Calculate timer tick required to cross X difference             |Y diff
-                return diffY/countRoundToCoverDiffX;                //Calculate Y distance required to cross Y difference             |
+                return Math.Round(diffY/countRoundToCoverDiffX,0);  //Calculate Y distance required to cross Y difference             |
             }                                                                                                                  //Myjet*
+            set
+            {
+                _deltaGunTargetY = (int) value;
+            }
         }
 
         public EnemyBullet()
         {
             Size = 3;
             GunFireStart = false;
-            IsBossGun = false;
-            IsBigGun = false;
             DeltaX = 8;
-            IsHeliGun = false;
+            IsHollowBullet = false;
         }
     }
 }
