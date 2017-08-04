@@ -34,6 +34,7 @@ namespace FlyingGame.Model.Shared
         public byte BombExplosionVisibleTimeMax { get; set; }
         
         //Enemy jet related
+        public bool EnemyJetOff { get; set; }
         public byte MaxEnemyJetT1PerLvl { get; set; }
         public byte MaxEnemyJetT2PerLvl { get; set; }
         public byte EnemySmallJetBulletSize { get; set; }
@@ -47,6 +48,7 @@ namespace FlyingGame.Model.Shared
         public byte EnemyJetT2Hp { get; set; }
         
         //Enemy heli related
+        public bool EnemyHeliOff { get; set; }
         public byte EnemyHeliT1BulletPerRound { get; set; }
         public byte EnemyHeliT1BulletSize { get; set; }
         public byte EnemyHeliT1MovementDelta { get; set; }
@@ -108,6 +110,7 @@ namespace FlyingGame.Model.Shared
             BombExplosionVisibleTimeMax = 60;
             
             //Enemy jet related
+            EnemyJetOff = false;
             EnemyJetT1MovementDelta = 2;
             EnemyJetT2MovementDelta = 4;
             EnemyJetT1BulletDelta = 4;
@@ -123,6 +126,7 @@ namespace FlyingGame.Model.Shared
             EnemyJetT2Hp = 2;
 
             //Enemy heli related
+            EnemyHeliOff = false;
             EnemyHeliT1BulletSize = 6;
             EnemyHeliT1BulletDelta = 5;
             EnemyHeliT1MovementDelta = 2;
@@ -149,14 +153,14 @@ namespace FlyingGame.Model.Shared
             BossBigGunBulletGenOdd = 200;
             
             //follwing four values determine level durations
-            BossHp = 400;                       
+            BossHp = 300;                       
             BossAppearScore = 500;              
-            BossAppearInterval = 600;           
+            BossAppearInterval = 1000;           
             BossHpIncrement = 200;              
             
             //Debug helpers
             GodMode = false;                    //true: No destroying my jet
-            EnableSound = true;
+            EnableSound = false;
             IsFullPowered = false;
         }
     }

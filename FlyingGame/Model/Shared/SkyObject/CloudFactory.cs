@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Linq;
 
-namespace FlyingGame.Model.Shared
+namespace FlyingGame.Model.Shared.SkyObject
 {
     public class CloudFactory
     {

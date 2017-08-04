@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Drawing;
 
-namespace FlyingGame.Model.Shared
+namespace FlyingGame.Model.Shared.SkyObject
 {
     public class SkyObjects
     {

@@ -1,0 +1,7 @@
+G:\VSprojects\FlyingGame\UnitTests\bin\Debug\UnitTests.dll
+G:\VSprojects\FlyingGame\UnitTests\bin\Debug\UnitTests.pdb
+G:\VSprojects\FlyingGame\UnitTests\bin\Debug\FlyingGame.exe
+G:\VSprojects\FlyingGame\UnitTests\bin\Debug\FlyingGame.pdb
+G:\VSprojects\FlyingGame\UnitTests\obj\Debug\UnitTests.csprojResolveAssemblyReference.cache
+G:\VSprojects\FlyingGame\UnitTests\obj\Debug\UnitTests.dll
+G:\VSprojects\FlyingGame\UnitTests\obj\Debug\UnitTests.pdb

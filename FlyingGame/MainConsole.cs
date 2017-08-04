@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Linq;
 using System.Windows.Forms;
 using System.Windows.Input;
@@ -11,6 +12,8 @@ using FlyingGame.Model.Enemy.Helis;
 using FlyingGame.Model.Enemy.Jet;
 using FlyingGame.Model.MyJet;
 using FlyingGame.Model.Shared;
+using FlyingGame.Model.Shared.GroundObject;
+using FlyingGame.Model.Shared.SkyObject;
 using Brushes = System.Drawing.Brushes;
 using Color = System.Drawing.Color;
 using KeyEventArgs = System.Windows.Forms.KeyEventArgs;
@@ -21,58 +24,63 @@ namespace FlyingGame
     public partial class MainConsole : Form
     {
         #region declarations
+        
         //Sound paths
-        private const string Gunfire = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\fire.wav";
-        private const string BombAway = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\BombAway.wav";
-        private const string BombXplode = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\BombXplode.wav";
-        private const string PowerUp = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\tada.wav";
-        private const string EnemyXplode = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\EnemyXplode.wav";
-        private const string NoseBombCharge = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\Beep.wav";
+        protected const string Gunfire = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\fire.wav";
+        protected const string BombAway = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\BombAway.wav";
+        protected const string BombXplode = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\BombXplode.wav";
+        protected const string PowerUp = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\tada.wav";
+        protected const string EnemyXplode = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\EnemyXplode.wav";
+        protected const string NoseBombCharge = @"G:\VSprojects\FlyingGame\FlyingGame\Sounds\Beep.wav";
 
         //Instantiate required objects
-        private readonly Random _rand = new Random();
+        protected  readonly Random _rand = new Random();
         
         //For game control
-        private GameController _gc = new GameController();
+        protected  GameController _gc = new GameController();
         //For keyboard input
-        private KeyboardInput _ki = new KeyboardInput();
+        protected KeyboardInput _ki = new KeyboardInput();
 
-        //For ground mountain background
-        private GroundObject _go = new GroundObject();
-        
+        //For ground background
+        protected  Mountain _go = new Mountain();
+        protected  Sea _sea = new Sea();
+
         //For cloud background
-        private SkyObjects _so = new SkyObjects();
-        private List<CloudFactory> _cL = new List<CloudFactory>();              //Create list of clouds for multiple clouds generation
+        protected  SkyObjects _so = new SkyObjects();
+        protected  List<CloudFactory> _cL = new List<CloudFactory>();              //Create list of clouds for multiple clouds generation
         
         //For my jet
-        private MyJet _mj = new MyJet();
-        private MyJetBomb _mjb = new MyJetBomb();
-        private List<MyJetGunBullet> _mjgb = new List<MyJetGunBullet>();         //Create list of bullets for multiple bullets generation
-        private Pen _myJetBulletColor;
+        protected MyJet _mj = new MyJet();
+        protected MyJetBomb _mjb = new MyJetBomb();
+        protected List<MyJetGunBullet> _mjgb = new List<MyJetGunBullet>();         //Create list of bullets for multiple bullets generation
+        protected Pen _myJetBulletColor;
         
         //For power ups 
-        private PowerUps _pu = new PowerUps();
+        protected PowerUps _pu = new PowerUps();
         
         //For enemy jet
-        private List<SmallJet> _ej = new List<SmallJet>();                      //Create list of enemy jets for multiple jets generation
-        private List<EnemyBullet> _ejb = new List<EnemyBullet>();               //Create list of bullets for multiple bullets generation
+        protected List<SmallJet> _ej = new List<SmallJet>();                      //Create list of enemy jets for multiple jets generation
+        protected List<EnemyBullet> _ejb = new List<EnemyBullet>();               //Create list of bullets for multiple bullets generation
         
         //For enemy helis
-        private List<SmallHeli> _eH = new List<SmallHeli>();                    //Create list of enemy helis for multiple heli generation
+        protected List<SmallHeli> _eH = new List<SmallHeli>();                    //Create list of enemy helis for multiple heli generation
 
         //For explosion animation
-        private List<Explosion> _exp = new List<Explosion>();           
+        protected List<Explosion> _exp = new List<Explosion>();           
 
         //For boss
-        private PlaneBoss _eB1 = new PlaneBoss();
-        private RocketBoss _eB2 = new RocketBoss();
+        protected PlaneBoss _eB1 = new PlaneBoss();
+        protected RocketBoss _eB2 = new RocketBoss();
 
-        private byte _dayPhase;
+        protected byte _dayPhase;
+        protected Graphics xxx;
         #endregion
 
         public MainConsole()
         {
             InitializeComponent();
+            System.Windows.Forms.Cursor.Hide();
+            
             _mj.MovementState = 0;
             _ki.KeyDirectionVertical = 0;
             _gc.IsGameOver = true;
@@ -89,7 +97,8 @@ namespace FlyingGame
             _gc = new GameController();
             _ki = new KeyboardInput();
 
-            _go = new GroundObject();
+            _go = new Mountain();
+            _sea = new Sea();
             _so = new SkyObjects();
 
             _mj = new MyJet();
@@ -97,6 +106,9 @@ namespace FlyingGame
             _pu = new PowerUps();
             _eB1 = new PlaneBoss();
             _eB2 = new RocketBoss();
+
+            _sea.RefY2 = PbConsole.Height;
+            _sea.Width = PbConsole.Width;
 
             if (_gc.IsFullPowered)
             {
@@ -172,29 +184,36 @@ namespace FlyingGame
                 
                 #region Ground
                 //Initiate
-                if (_rand.Next(1, 10) == 5 && !_go.MountainDrawInitiated)
+                if (_rand.Next(1, 10) == 5 && !_go.DrawInitiated)
                     InitiateMountain();
-                
-                if (!_go.MountainDrawInitiated) goto MyJetRegion;           //no mountain to draw, bypass this region
+
+                if (!_go.DrawInitiated) //no mountain to draw, bypass this region
+                    goto MyJetRegion;           
 
                 //Draw
-                sky.FillPolygon(_go.MountainColor, _go.MountainPoints());
+                
+                sky.FillPolygon(_go.Color, _go.MountainPoints());
                 
                 //Post draw process
-                _go.RefX = _go.RefX - _go.MountainMoveDeltaX;
-                if (_go.RefX + _go.Width < 0) _go = new GroundObject();
+                _go.RefX = _go.RefX - _go.MoveDeltaX;
+                if (_go.RefX + _go.Width < 0) _go = new Mountain();
 
+                #endregion
+
+                #region Sea
+                DrawSea(sky);
                 #endregion
 
                 #region Cloud
 
-                if(_gc.SkyobjectOff) goto MyJetRegion;
-
+                if (_gc.SkyobjectOff) goto MyJetRegion;
+                
                 //only initiate when existing cloud is lesser than 4 and no incompleted cloud (to avoid major overlap between clouds)
                 if (_rand.Next(1, 150) == 50 && _cL.Count < 4 && (_cL.Select(x => x).Where(x => !x.IsGenerated).Count() == 0))
                     InitiateCloud();
-                
-                if(_cL.Count==0) goto MyJetRegion;  //No cloud to process, leave this region
+
+                if (_cL.Count == 0)        //No cloud to process, leave this region
+                    goto MyJetRegion;  
 
                 //draw and post draw process
                 DrawCloudAndProcessData(sky);
@@ -252,6 +271,8 @@ namespace FlyingGame
 
                 #region EnemyJet
 
+                if(_gc.EnemyJetOff) goto EnemyHeli;                //Enemy jet generation turned off, skip the whole section
+
                 InitiateEnemyJets();
                 
                 if (_ej.Count == 0) goto EnemyHeli;                //no enemy jet to process, skip this region
@@ -274,9 +295,11 @@ namespace FlyingGame
             
             EnemyHeli:
 
+                if(_gc.EnemyHeliOff) goto Powerups;     //Enemy heli generation turned off, skip this region.
+
                 InitiateEnemyHeli();
 
-                if (_eH.Count == 0) goto Powerups;  //no enemy to process, skip this region
+                if (_eH.Count == 0) goto Powerups;      //no enemy to process, skip this region
 
                 //Perform all processes for each enemy heli like move, draw, process, fire bullets blah blah
                 for (int i = 0; i < _eH.Count; i++)
@@ -389,7 +412,7 @@ namespace FlyingGame
                 //Nose gun action
                 if (!_eB2.NoseGunInitiated)
                 {
-                    if (_rand.Next(1, 400) == 45) _eB2.NoseGunInitiated = true;
+                    if (_rand.Next(1, 400) == 45 && _eB2.RefX > PbConsole.Width/2) _eB2.NoseGunInitiated = true;
                 }
                 
                 //Charge gun
@@ -508,8 +531,8 @@ namespace FlyingGame
         #region BackGrounds
         private void InitiateMountain()
         {
-            _go.MountainDrawInitiated = true;
-            _go.Height = _rand.Next(20, 150);     //Get a random number to control mountain Height
+            _go.DrawInitiated = true;
+            _go.Height = _rand.Next(40, 150);     //Get a random number to control mountain Height
             _go.Width = _rand.Next(250, 300);
 
             //Start from far right
@@ -518,9 +541,9 @@ namespace FlyingGame
 
             switch (_rand.Next(1, 3))             //select random colour from three choices as mountain colour
             {
-                case 1: { _go.MountainColor = Brushes.Green; break; }
-                case 2: { _go.MountainColor = Brushes.Yellow; break; }
-                case 3: { _go.MountainColor = Brushes.SaddleBrown; break; }
+                case 1: { _go.Color = Brushes.Green; break; }
+                case 2: { _go.Color = Brushes.Yellow; break; }
+                case 3: { _go.Color = Brushes.SaddleBrown; break; }
             }
         }
         private void InitiateCloud()
@@ -548,7 +571,7 @@ namespace FlyingGame
 
             //Add the cloud object in list.
             _cL.Add(new CloudFactory { CloudInitiated = true, RefX = _so.RefX, FillColor = _so.FillColor, DeltaX = _so.DeltaX, Width = _so.Width, ShapePoints = _so.CloudPoints(), IsGenerated = false, HasBorder = _so.HasBorder });
-            
+
         }
         private void DrawCloudAndProcessData(Graphics sky)
         {
@@ -568,6 +591,24 @@ namespace FlyingGame
                 if (cloud.RefX + cloud.Width < 0) cloud.CloudInitiated = false;                      //If the whole cloud left windown, mark it for removal
                 if (cloud.RefX + (cloud.Width * _gc.CloudGenerationOdd / 100) <= PbConsole.Width) cloud.IsGenerated = true;   //If cloud shifted on left enough to be half drawn, mark it (to allow next cloud generation)
             }
+        }
+        private void DrawSea(Graphics sky)
+        {
+            _sea.Counter++;
+
+            if (_sea.ProcessedPoints == null) _sea.ProcessedPoints = _sea.SeaLevelPoints();
+
+            if (_sea.Counter % 20 == 0)
+            {
+                sky.FillPolygon(Brushes.LightSeaGreen, _sea.SeaLevelPoints());
+                _sea.ProcessedPoints = _sea.SeaLevelPoints();
+            }
+            else
+            {
+                sky.FillPolygon(Brushes.LightSeaGreen, _sea.ProcessedPoints);
+            }
+
+            if (_sea.Counter > 40) _sea.Counter = 0;
         }
         #endregion
 
@@ -1775,7 +1816,7 @@ namespace FlyingGame
                 _gc.EnemyHeliT1MovementDelta++;
                 _gc.EnemyHeliT1BulletPerRound++;
 
-                _gc.BossAppearScore = (int)(_gc.BossAppearScore + _gc.BossAppearInterval * 1.5);
+                _gc.BossAppearScore = (int)(_gc.Score + _gc.BossAppearInterval);
 
                 if (_gc.BossType == 1)
                 {
@@ -1833,7 +1874,7 @@ namespace FlyingGame
         }
         private void LevelAndHpUpdate()
         {
-            if (!_eB1.IsBossInitiated)
+            if (!_eB1.IsBossInitiated && !_eB2.IsBossInitiated)
             {
                 if (_gc.Score >= _gc.NextScoreCheckPoint)
                 {

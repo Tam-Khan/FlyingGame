@@ -6,7 +6,8 @@ namespace FlyingGame.Model.Enemy
 {
     public class EnemyBullet
     {
-        private int _deltaGunTargetY;
+        private sbyte _deltaGunTargetY;
+        private sbyte  _deltaX;
         public int X { get; set; }
         public int Y { get; set; }
         public byte Size { get; set; }
@@ -23,7 +24,24 @@ namespace FlyingGame.Model.Enemy
         public int MyJetX { get; set; }
         public int MyJetY { get; set; }
 
-        public int DeltaX { get; set; }
+        private sbyte DeltaDirectionX()
+        {
+            if (InitialX - MyJetX < 0)
+            {
+                return -1;
+            }
+
+            return 1;
+        }
+
+        public int DeltaX
+        {
+            get
+            {
+                return _deltaX * DeltaDirectionX();
+            }
+            set { _deltaX = (sbyte) value; }
+        }
 
         //try to calculate bullet vertical movement change based on my jet's location (used in boss and heli gun fire)
         public double DeltaGunTargetY
@@ -31,15 +49,15 @@ namespace FlyingGame.Model.Enemy
             get
             {
                 if (_deltaGunTargetY != 0) return _deltaGunTargetY;
-                if ((InitialX - MyJetX) < 0 || MyJetX == 0) return 0;
-                double diffX = InitialX - MyJetX;                   //X difference between my jet and bullet's initial x              ---------X diff------* Bullet
-                double diffY = MyJetY-InitialY;                     //Y difference between my jet and bullet's initial y              |
-                double countRoundToCoverDiffX = diffX/DeltaX;       //Calculate timer tick required to cross X difference             |Y diff
-                return Math.Round(diffY/countRoundToCoverDiffX,0);  //Calculate Y distance required to cross Y difference             |
-            }                                                                                                                  //Myjet*
+                if (MyJetX == 0) return 0;
+                double diffX = Math.Abs(InitialX - MyJetX);                     //X difference between my jet and bullet's initial x              ---------X diff------* Bullet
+                double diffY = (MyJetY-InitialY);                                 //Y difference between my jet and bullet's initial y              |
+                double countRoundToCoverDiffX = diffX/Math.Abs(DeltaX);                   //Calculate timer tick required to cross X difference             |Y diff
+                return Math.Round(diffY/countRoundToCoverDiffX,0);              //Calculate Y distance required to cross Y difference             |
+            }                                                                                                                              //Myjet*
             set
             {
-                _deltaGunTargetY = (int) value;
+                _deltaGunTargetY = (sbyte) value;
             }
         }
 
